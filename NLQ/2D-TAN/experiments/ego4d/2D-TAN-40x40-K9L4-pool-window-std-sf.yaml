@@ -45,8 +45,8 @@ TAN:
   FRAME_MODULE:
     NAME: FrameAvgPool
     PARAMS:
-      INPUT_SIZE: 2304
-      HIDDEN_SIZE: 512
+      INPUT_SIZE: 1024       # Omnivore-SwinB features are 1024-D (was 2304 for SlowFast)
+      HIDDEN_SIZE: 512       # Keep as-is
       KERNEL_SIZE: 1
       STRIDE: 1
 
