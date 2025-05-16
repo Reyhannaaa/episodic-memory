@@ -8,7 +8,7 @@ DATA_DIR: ./data/Ego4D_clip
 
 DATASET:
   NAME: Ego4DClip
-  VIS_INPUT_TYPE: slowfast
+  VIS_INPUT_TYPE: omnivore
   NO_VAL: False
   NUM_SAMPLE_CLIPS: 40
   TARGET_STRIDE: 1
