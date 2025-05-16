@@ -35,11 +35,11 @@ TRAIN:
   CONTINUE: False
 
 LOSS:
-  NAME: bce_rescale_loss
+  NAME: bce_rescale_loss     # Keep for binary classification
   PARAMS:
     MIN_IOU: 0.3
     MAX_IOU: 1.0
-    BIAS: 0.3
+
 
 TAN:
   FRAME_MODULE:
@@ -56,14 +56,11 @@ TAN:
       NUM_SCALE_LAYERS: [16,8,8]
 
   FUSION_MODULE:
-    NAME: BaseFusion
-    PARAMS:
-      HIDDEN_SIZE: 512
-      TXT_INPUT_SIZE: 300
-      TXT_HIDDEN_SIZE: 768
-      LSTM:
-        NUM_LAYERS: 3
-        BIDIRECTIONAL: False
+  NAME: BaseFusion
+  PARAMS:
+    HIDDEN_SIZE: 512
+    TXT_INPUT_SIZE: 300      # Only for NLQ (set to 0 if no text)
+    TXT_HIDDEN_SIZE: 768
 
   MAP_MODULE:
     NAME: MapConv
