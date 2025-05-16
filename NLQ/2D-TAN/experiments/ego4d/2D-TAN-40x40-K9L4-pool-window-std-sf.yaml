@@ -1,10 +1,10 @@
 WORKERS: 0
 DEBUG: False
 
-MODEL_DIR: ./checkpoints
-RESULT_DIR: ./results
-LOG_DIR: ./log
-DATA_DIR: ./data/Ego4D_clip
+DATA_DIR: ./data/omnivore_features  # Point to Omnivore .pt files (not Ego4D_clip)
+MODEL_DIR: ./checkpoints/omnivore   # Separate checkpoint folder
+RESULT_DIR: ./results/omnivore
+LOG_DIR: ./log/omnivore
 
 DATASET:
   NAME: Ego4DClip
