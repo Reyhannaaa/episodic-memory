@@ -1,52 +1,49 @@
 WORKERS: 0
 DEBUG: False
 
-MODEL_DIR: ./checkpoints
-RESULT_DIR: ./results
-LOG_DIR: ./log
-DATA_DIR: ./data/Ego4D_clip
+DATA_DIR: ./data/omnivore_features  # Point to Omnivore .pt files (not Ego4D_clip)
+MODEL_DIR: ./checkpoints/omnivore   # Separate checkpoint folder
+RESULT_DIR: ./results/omnivore
+LOG_DIR: ./log/omnivore
 
 DATASET:
   NAME: Ego4DClip
-  VIS_INPUT_TYPE: omnivore
+  VIS_INPUT_TYPE: omnivore  # Changed from 'slowfast' to 'omnivore'
   NO_VAL: False
-  NUM_SAMPLE_CLIPS: 40
-  TARGET_STRIDE: 1
-  NORMALIZE: True
+  NUM_SAMPLE_CLIPS: 40      # Adjust if Omnivore uses different clip lengths
+  TARGET_STRIDE: 1          # Keep as-is (or adjust if Omnivore features are downsampled)
+  NORMALIZE: True           # Omnivore features may already be normalized
   RANDOM_SAMPLING: False
-  WINDOW: 40 # we use 40s window to cut the videos
+  WINDOW: 40                # Keep if using 40s clips
 
 TEST:
-  BATCH_SIZE: 16
-  RECALL: 1,5
-  TIOU: 0.3,0.5
-  EVAL_TRAIN: True
-  NMS_THRESH: 0.5
+  BATCH_SIZE: 16             # Reduce if Omnivore features are memory-heavy
+  RECALL: 1,5                # Keep for NLQ (remove if doing action detection)
+  TIOU: 0.3,0.5              # Adjust thresholds for your task
+
 
 CUDNN:
   DETERMINISTIC: False
   BENCHMARK: True
 
 TRAIN:
-  BATCH_SIZE: 32
-  LR: 0.00005
-  WEIGHT_DECAY: 0.0000
+  BATCH_SIZE: 16             # Reduce from 32 if needed
+  LR: 0.00005                # May need tuning for Omnivore features
   MAX_EPOCH: 100
-  CONTINUE: False
-
+  
 LOSS:
-  NAME: bce_rescale_loss
+  NAME: bce_rescale_loss     # Keep for binary classification
   PARAMS:
     MIN_IOU: 0.3
     MAX_IOU: 1.0
-    BIAS: 0.3
+
 
 TAN:
   FRAME_MODULE:
     NAME: FrameAvgPool
     PARAMS:
-      INPUT_SIZE: 2304
-      HIDDEN_SIZE: 512
+      INPUT_SIZE: 1024       # Omnivore-SwinB features are 1024-D (was 2304 for SlowFast)
+      HIDDEN_SIZE: 512       # Keep as-is
       KERNEL_SIZE: 1
       STRIDE: 1
 
@@ -56,14 +53,11 @@ TAN:
       NUM_SCALE_LAYERS: [16,8,8]
 
   FUSION_MODULE:
-    NAME: BaseFusion
-    PARAMS:
-      HIDDEN_SIZE: 512
-      TXT_INPUT_SIZE: 300
-      TXT_HIDDEN_SIZE: 768
-      LSTM:
-        NUM_LAYERS: 3
-        BIDIRECTIONAL: False
+  NAME: BaseFusion
+  PARAMS:
+    HIDDEN_SIZE: 512
+    TXT_INPUT_SIZE: 300      # Only for NLQ (set to 0 if no text)
+    TXT_HIDDEN_SIZE: 768
 
   MAP_MODULE:
     NAME: MapConv
