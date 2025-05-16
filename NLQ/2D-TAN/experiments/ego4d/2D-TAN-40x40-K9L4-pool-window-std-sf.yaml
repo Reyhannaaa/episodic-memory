@@ -17,22 +17,20 @@ DATASET:
   WINDOW: 40 # we use 40s window to cut the videos
 
 TEST:
-  BATCH_SIZE: 16
-  RECALL: 1,5
-  TIOU: 0.3,0.5
-  EVAL_TRAIN: True
-  NMS_THRESH: 0.5
+  BATCH_SIZE: 16             # Reduce if Omnivore features are memory-heavy
+  RECALL: 1,5                # Keep for NLQ (remove if doing action detection)
+  TIOU: 0.3,0.5              # Adjust thresholds for your task
+
 
 CUDNN:
   DETERMINISTIC: False
   BENCHMARK: True
 
 TRAIN:
-  BATCH_SIZE: 32
-  LR: 0.00005
-  WEIGHT_DECAY: 0.0000
+  BATCH_SIZE: 16             # Reduce from 32 if needed
+  LR: 0.00005                # May need tuning for Omnivore features
   MAX_EPOCH: 100
-  CONTINUE: False
+
 
 LOSS:
   NAME: bce_rescale_loss
