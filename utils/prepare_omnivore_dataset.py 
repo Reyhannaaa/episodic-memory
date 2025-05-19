@@ -1,0 +1,75 @@
+import os
+import json
+import torch
+from tqdm import tqdm
+
+def prepare_annotations(input_json, output_dir, feature_dir, split_name):
+    """Convert Ego4D annotations to 2D-TAN format and verify feature files."""
+    with open(input_json) as f:
+        data = json.load(f)
+    
+    annotations = []
+    missing_features = []
+    
+    for video in tqdm(data['videos'], desc=f"Processing {split_name}"):
+        video_id = video['video_uid']
+        feature_path = os.path.join(feature_dir, f"{video_id}.pt")
+        
+        # Check if features exist
+        if not os.path.exists(feature_path):
+            missing_features.append(video_id)
+            continue
+            
+        features = torch.load(feature_path)
+        num_clips = features.shape[0]  # (T, 1024)
+        
+        for clip in video['clips']:
+            clip_id = clip['clip_uid']
+            for ann in clip['annotations']:
+                for seg in ann['segments']:
+                    # Convert seconds to clip indices
+                    start = int(seg['start_time'] * 30 / 16)  # Assuming 16fps features
+                    end = int(seg['end_time'] * 30 / 16)
+                    annotations.append({
+                        'video_id': video_id,
+                        'clip_id': clip_id,
+                        'start': start,
+                        'end': end,
+                        'label': seg['label'],
+                        'num_clips': num_clips
+                    })
+    
+    # Save processed annotations
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, f"{split_name}.json")
+    with open(output_path, 'w') as f:
+        json.dump(annotations, f)
+    
+    print(f"Saved {len(annotations)} annotations to {output_path}")
+    if missing_features:
+        print(f"Warning: Missing features for {len(missing_features)} videos")
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input_train_split', required=True)
+    parser.add_argument('--input_val_split', required=True)
+    parser.add_argument('--input_test_split', required=True)
+    parser.add_argument('--video_feature_read_path', required=True)
+    parser.add_argument('--output_save_path', required=True)
+    args = parser.parse_args()
+    
+    # Process all splits
+    for split_name, input_path in [
+        ('train', args.input_train_split),
+        ('val', args.input_val_split),
+        ('test', args.input_test_split)
+    ]:
+        if not os.path.exists(input_path):
+            continue
+        prepare_annotations(
+            input_path,
+            args.output_save_path,
+            args.video_feature_read_path,
+            split_name
+        )
